@@ -48,7 +48,7 @@
     region: "pt"
   )
   set page(
-    numbering: "1 / 30",
+    numbering: "1 / 20",
     margin: (left: 12mm, right: 12mm, top: 13mm, bottom: 13mm)
   )
   set par(
@@ -103,7 +103,7 @@
     kind: grid
   ): set figure(kind: image) // n funciona n sei pq
 
-  set list(indent: 0.6cm)
+  set list(indent: 0pt)
   // show figure.where(
   //   kind: tablex
   // ): set figure(kind: table) // n funciona n sei pq

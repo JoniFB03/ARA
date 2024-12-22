@@ -4,6 +4,8 @@ import pandas as pd
 from pathlib import Path
 import numpy as np
 import datetime
+from tqdm import tqdm
+from allNodesRegions import jogos_offline, non_Videojogos, categorize_game
 
 def AnalyzeCountryNetwork(country: str, current_dir: pathlib.WindowsPath) -> None:
     print(f'\n# ===={country}==== #\n')
@@ -33,15 +35,21 @@ def AnalyzeCountryNetwork(country: str, current_dir: pathlib.WindowsPath) -> Non
     nodes_df = pd.read_csv(target_file)  # Dados dos nodos
     edges_df = pd.read_csv(edge_file)   # Dados das arestas
 
+    # Aplicar categorização aos jogos
+    print("A categorizar os jogos...")
+    nodes_df['GameType'] = nodes_df['game_name'].apply(categorize_game)
+
     # Inicializar o grafo
     G_nx = nx.Graph()
 
     # Adicionar os nós com todas as características do ficheiro target
-    for _, row in nodes_df.iterrows():
+    print("A adicionar nós...")
+    for _, row in tqdm(nodes_df.iterrows(), total=len(nodes_df), desc="Nós processados"):
         G_nx.add_node(row['new_id'], **row.to_dict())
 
     # Adicionar arestas ao grafo
-    for _, row in edges_df.iterrows():
+    print("A adicionar arestas...")
+    for _, row in tqdm(edges_df.iterrows(), total=len(edges_df), desc="Arestas processadas"):
         G_nx.add_edge(row['from'], row['to'])
 
     print(f"Número de nós: {G_nx.number_of_nodes()}")
@@ -51,33 +59,34 @@ def AnalyzeCountryNetwork(country: str, current_dir: pathlib.WindowsPath) -> Non
     # Cálculo de Métricas
     # ==================== #
     print("A calcular métricas...")
+
     start_metric = datetime.datetime.now()
-    degree_centrality = nx.degree_centrality(G_nx)
+    degree_centrality = {k: v for k, v in tqdm(nx.degree_centrality(G_nx).items(), desc="Degree Centrality")}
     print(f"Métrica degree_centrality da região {country} demorou {datetime.datetime.now() - start_metric}")
 
     start_metric = datetime.datetime.now()
-    closeness_centrality = nx.closeness_centrality(G_nx)
+    closeness_centrality = {k: v for k, v in tqdm(nx.closeness_centrality(G_nx).items(), desc="Closeness Centrality")}
     print(f"Métrica closeness_centrality da região {country} demorou {datetime.datetime.now() - start_metric}")
 
     start_metric = datetime.datetime.now()
-    betweenness_centrality = nx.betweenness_centrality(G_nx)
+    betweenness_centrality = {k: v for k, v in tqdm(nx.betweenness_centrality(G_nx).items(), desc="Betweenness Centrality")}
     print(f"Métrica betweenness_centrality da região {country} demorou {datetime.datetime.now() - start_metric}")
 
     start_metric = datetime.datetime.now()
-    eigenvector_centrality = nx.eigenvector_centrality(G_nx)
+    eigenvector_centrality = {k: v for k, v in tqdm(nx.eigenvector_centrality(G_nx).items(), desc="Eigenvector Centrality")}
     print(f"Métrica eigenvector_centrality da região {country} demorou {datetime.datetime.now() - start_metric}")
 
     start_metric = datetime.datetime.now()
-    pagerank_centrality = nx.pagerank(G_nx)
+    pagerank_centrality = {k: v for k, v in tqdm(nx.pagerank(G_nx).items(), desc="PageRank")}
     print(f"Métrica pagerank_centrality da região {country} demorou {datetime.datetime.now() - start_metric}")
 
     start_metric = datetime.datetime.now()
-    clustering_coef = nx.clustering(G_nx)
+    clustering_coef = {k: v for k, v in tqdm(nx.clustering(G_nx).items(), desc="Clustering Coefficient")}
     print(f"Métrica clustering_coef da região {country} demorou {datetime.datetime.now() - start_metric}")
 
     start_metric = datetime.datetime.now()
-    avg_clustering = nx.average_clustering(G_nx)
-    print(f"Métrica avg_clustering da região {country} demorou {datetime.datetime.now() - start_metric}")
+    k_core_numbers = nx.core_number(G_nx)
+    print(f"K-core calculation completed in: {datetime.datetime.now() - start_metric}")
 
     # ==================== #
     # Deteção de Comunidades
@@ -98,7 +107,7 @@ def AnalyzeCountryNetwork(country: str, current_dir: pathlib.WindowsPath) -> Non
     # ==================== #
     print("A consolidar resultados...")
     node_data = []
-    for node in G_nx.nodes(data=True):
+    for node in tqdm(G_nx.nodes(data=True), desc="Consolidar resultados"):
         node_id = node[0]
         attributes = node[1]
         node_data.append({
@@ -112,6 +121,7 @@ def AnalyzeCountryNetwork(country: str, current_dir: pathlib.WindowsPath) -> Non
             'clustering_coef': clustering_coef.get(node_id, 0),
             'louvain_community': louvain_communities.get(node_id, -1),
             'lp_community': lp_communities.get(node_id, -1),
+            'k_core': k_core_numbers.get(node_id, 0),
             **attributes  # Adicionar todas as características originais dos nós
         })
 
@@ -129,8 +139,8 @@ def AnalyzeCountryNetwork(country: str, current_dir: pathlib.WindowsPath) -> Non
 if __name__ == "__main__":
     # Diretório atual
     current_dir = Path.cwd()
-    # Lista de países a analisar
+    # Listar países a analisar
     countries = ["PTBR", "DE", "ENGB", "ES", "FR", "RU"]
     # Analisar cada país na lista
-    for country in countries:
+    for country in tqdm(countries, desc="Países processados"):
         AnalyzeCountryNetwork(country, current_dir)

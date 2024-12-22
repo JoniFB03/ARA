@@ -1051,27 +1051,22 @@ def plot_community_distribution(df, column_name, community_column, country, outp
     # Criar tabela de contingência
     cross_tab = pd.crosstab(df[community_column], df[column_name])
     
-    # Se houver muitas categorias, pegar apenas as top N mais frequentes
-    if cross_tab.shape[1] > 10:
-        top_categories = df[column_name].value_counts().nlargest(10).index
-        cross_tab = cross_tab[top_categories]
-    
     # Plotar gráfico de barras empilhadas
-    cross_tab.plot(kind='bar', stacked=True)
+    ax = cross_tab.plot(kind='bar', stacked=True)
     
-    plt.title(f'Distribuição de {column_name} por {community_column}\n{country}',
-              fontsize=16, pad=20)
-    plt.xlabel('Comunidade', fontsize=12)
-    plt.ylabel('Quantidade', fontsize=12)
+    # Definir título e rótulos
+    ax.set_title(f'Distribuição de {column_name} por {community_column}\n{country}', fontsize=16, pad=20)
+    ax.set_xlabel('Comunidade', fontsize=12)
+    ax.set_ylabel('Quantidade', fontsize=12)
     
-    # Rotacionar labels do eixo x
+    # Ajustar legenda para ficar dentro do gráfico, na posição "best"
+    ax.legend(title=column_name, loc='best', fontsize=10)
+    
+    # Rotacionar labels do eixo X
     plt.xticks(rotation=45, ha='right')
     
-    # Ajustar legenda
-    plt.legend(title=column_name, bbox_to_anchor=(1.05, 1), loc='upper left')
-    
     # Adicionar grid
-    plt.grid(True, alpha=0.3)
+    ax.grid(True, alpha=0.3)
     
     # Ajustar layout
     plt.tight_layout()
@@ -1080,9 +1075,7 @@ def plot_community_distribution(df, column_name, community_column, country, outp
     folder = create_subfolder('NoteBook2', output_dir)
     dist_folder = create_subfolder('CommunityDistribution', folder)
     filename = f"Distribution_{column_name}_{community_column}_{country}.png"
-    plt.savefig(dist_folder / filename, 
-                bbox_inches='tight',
-                dpi=300)
+    plt.savefig(dist_folder / filename, bbox_inches='tight', dpi=300)
     
     plt.show()
 

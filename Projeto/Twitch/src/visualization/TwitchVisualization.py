@@ -56,7 +56,7 @@ def seeGraph(current_dir, edgePath, targetPath, PercNodes, country):
     # Definir o tamanho dos nós com base nas views (normalizando)
     node_sizes = np.array(views)
     node_sizes = (node_sizes - min(node_sizes)) / (max(node_sizes) - min(node_sizes))
-    node_sizes = 100 + (node_sizes * 1500)  # Escalar os tamanhos (mínimo de 50 e máximo de 1050)
+    node_sizes = 100 + (node_sizes * 1700)  # Escalar os tamanhos (mínimo de 50 e máximo de 1050)
 
     # Ajustar o layout da rede para centralizar os nós com mais views
     pos = nx.spring_layout(subgrafo, k=1, iterations=50, seed=42)
@@ -74,10 +74,10 @@ def seeGraph(current_dir, edgePath, targetPath, PercNodes, country):
         if distance > 0:
             # Quanto mais views, menor o fator de distância do centro
             factor = 10 - (weight/2)
-            pos[node] = (x * factor * 10, y * factor * 10)
+            pos[node] = (x * factor * 100, y * factor * 100)
     
     # Ajustar tamanho da figura e a qualidade da visualização
-    plt.figure(figsize=(20, 20), dpi=300)
+    plt.figure(figsize=(18, 18), dpi=300)
     plt.style.use("dark_background")  # Background escuro para maior contraste
 
     # Definir a cor dos nós com base no broadcaster_type
@@ -134,7 +134,7 @@ def seeGraph(current_dir, edgePath, targetPath, PercNodes, country):
 
     # Após desenhar os nós normais, adicionar imagens e labels para os top nós por views
     node_views = [(node, G.nodes[node]['views']) for node in subgrafo.nodes()]
-    top_nodes = sorted(node_views, key=lambda x: x[1], reverse=True)[:3] # NumNodes para todos
+    top_nodes = sorted(node_views, key=lambda x: x[1], reverse=True)[:25] # NumNodes para todos
     
     # Criar dicionário de labels e imagens apenas para os top nós
     labels = {}
@@ -144,52 +144,47 @@ def seeGraph(current_dir, edgePath, targetPath, PercNodes, country):
         username = subgrafo.nodes[node]['features']['username']
         views = subgrafo.nodes[node]['views']
         profile_pic_url = subgrafo.nodes[node]['features']['profile_pic']
-        
-        # Adicionar a imagem como um nó circular
+        node_index = list(subgrafo.nodes).index(node)
+        node_size = node_sizes[node_index]  # Obter o tamanho do nó já escalado
+
         try:
             # Baixar a imagem da URL
             response = requests.get(profile_pic_url)
             img = Image.open(BytesIO(response.content))
-            
-            # Converter para array numpy
-            img_array = np.asarray(img)
-            
-            # Criar e configurar a imagem
-            imagebox = OffsetImage(img_array, zoom=0.05)  # Ajuste o zoom conforme necessário
+
+            # Converter a imagem para RGB se não estiver nesse formato
+            if img.mode != 'RGB':
+                img = img.convert('RGB')
+
+            # Ajustar o zoom da imagem com base no tamanho do nó
+            zoom = (0.02 * node_size) / 400  # Ajuste fino para manter proporções visuais
+            imagebox = OffsetImage(np.asarray(img), zoom=zoom)
             imagebox.image.axes = plt.gca()
-            
-            # Criar uma anotação com a imagem
+
+            # Adicionar a imagem ao grafo
             ab = AnnotationBbox(imagebox, pos[node],
-                              frameon=True,
-                              pad=0,
-                              box_alignment=(0.5, 0.5),
-                              bboxprops=dict(facecolor='white', 
-                                           edgecolor='white',
-                                           alpha=0.8))
+                                frameon=False,
+                                box_alignment=(0.5, 0.5))
             plt.gca().add_artist(ab)
         except Exception as e:
             print(f"Não foi possível carregar a imagem para {username}: {str(e)}")
-        
-        # Adicionar o label com username e views
-        labels[node] = f"{username}\n{views:,} views"
 
-        # Ajustar posição do label para ficar abaixo da imagem
-        x, y = pos[node]
-        node_size = node_sizes[list(subgrafo.nodes).index(node)]
-        offset = node_size / 800  # Ajuste este valor para controlar a distância
-        label_pos[node] = (x, y - offset )  # Mover o label para baixo
-    
-    
+        # Ajustar o tamanho do texto para rótulos com base no tamanho do nó
+        font_size = max(2, min(12, node_size / 800))  # Escalar entre 6 e 12
+        labels[node] = f"{username}\n{views:,} views"
+        label_pos[node] = (pos[node][0], pos[node][1] - node_size / 500)  # Ajustar posição do texto
+
+    # Atualizar os rótulos com tamanho de texto dinâmico
     nx.draw_networkx_labels(subgrafo, label_pos,
-                        labels,
-                        font_size=2.5,
-                        font_weight='bold',
-                        font_color='white',
-                        bbox=dict(facecolor='black',
-                                  edgecolor='white',
-                                  alpha=0.5,
-                                  pad=0,
-                                  boxstyle='round,pad=0'))
+                            labels,
+                            font_size=font_size,
+                            font_weight='bold',
+                            font_color='white',
+                            bbox=dict(facecolor='black',
+                                    edgecolor='white',
+                                    alpha=0.5,
+                                    pad=0,
+                                    boxstyle='round,pad=0'))
 
 
     # Desenhar as arestas com maior transparência

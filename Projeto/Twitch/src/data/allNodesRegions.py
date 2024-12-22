@@ -11,6 +11,74 @@ from tqdm import tqdm
 
 colorama.init()
 
+# Lista de categorias que não são videojogos
+global non_Videojogos
+
+non_Videojogos = ['IRL', 'Just Chatting', 'Watch TV', 'Art', 'Music',
+                    'Science & Technology', 'Software and Game Development',
+                    'Co-working & Studying', 'Crypto', 'Politics',
+                    'Talk Shows & Podcasts', 'DJs', 'Special Events',
+                    'Sports', 'Food & Drink', 'Casino', 'CooKing',
+                    'Poker', 'Virtual Casino', 'Tabletop RPGs', 'ASMR']
+
+non_Videojogos = [Njogo.strip().lower() for Njogo in non_Videojogos]
+
+global jogos_offline
+jogos_offline = ["The Callisto Protocol", "Kingdom Two Crowns", "My Hotel", "Disco Elysium",
+                    "Divinity: Original Sin II", "Grand Theft Auto: San Andreas", "osu!",
+                    "The Binding of Isaac: Repentance", "God of War Ragnarök", "BUCKSHOT ROULETTE", "Atomic Heart",
+                    "Gothic II", "Grand Theft Auto III", "Silent Hill 2", "Ghostwire: Tokyo", "DREDGE",
+                    "VLADiK BRUTAL", "Northern Journey", "The Dark Pictures Anthology: Little Hope",
+                    "Marvel's Spider-Man", "Resident Evil 4", "Crossout", "Horizon Zero Dawn Remastered", "Outlast II",
+                    "The Last of Us Part I", "Neva", "Risk of Rain 2", "ELDEN RING", "Alan Wake II",
+                    "DARK SOULS II: Scholar of the First Sin", "DARK SOULS III", "Dark Souls: Remastered", "Diablo II",
+                    "Fallout 4", "Dungeon Crusher: Soul Hunters", "Castlevania: Dawn of Sorrow", "Artifact",
+                    "I Wanna Kill the Kamilia 3", "Torchlight: Infinite", "The Guild 3", "Sid Meier's Civilization VI",
+                    "Sons of the Forest", "The Sims 4", "X4: Foundations", "Hades II",
+                    "Prince of Persia: The Lost Crown", "Bloodborne", "Angry Birds VR: Isle of Pigs",
+                    "Heroes of Might and Magic V", "Internet Cafe Simulator 2", "Wolfenstein: The New Order",
+                    "Factorio", "DOOM Eternal", "Everlasting Summer", "God Hand", "Beyond: Two Souls", "Mafia III",
+                    "Zenless Zone Zero", "Stardew Valley", "SIFU", "Dead Space 3", "Mafia II", "Fallout 2",
+                    "SnowRunner", "Hollow Knight", "The Witcher 3: Wild Hunt", "Killer Instinct", "Little Misfortune",
+                    "Magicraft", "Magicraft", "Planetbase", "Microsoft Flight Simulator 2024", "Songs of Conquest",
+                    "Stalker 2", "Amnesia: Rebirth", "Napoleon: Total War", "Gran Saga", "Pokémon Emerald Version",
+                    "Football, Tactics & Glory", "Katamari Damacy REROLL", "Lethal Company",
+                    "Vampire: The Masquerade - Bloodlines", "Red Dead Redemption", "The Walking Dead",
+                    "Detroit: Become Human", "Until Dawn", "DiRT Rally 2.0", "Portal 2", "Rise of the Tomb Raider",
+                    "Half-Life: Alyx", "Cyberpunk 2077", "Forza Horizon 5", "South Park: The Fractured But Whole",
+                    "TSIOQUE", "Need for Speed: Most Wanted", "inFAMOUS: Second Son", "Marvel's Spider-Man Remastered",
+                    "Alone in the Dark", "Lobotomy Corporation", "Mortal Kombat 1", "Tropico 6", "Dark and Darker",
+                    "Gray Zone Warfare", "The Dark Pictures Anthology: Man of Medan", "Beat Saber", "Blasphemous",
+                    "Baldur's Gate 3", "Broken Arrow", "Yakuza 0", "Dishonored", "Hogwarts Legacy",
+                    "Grand Theft Auto IV", "Need for Speed: Underground 2", "Only Up!", "Dragon Age: Origins",
+                    "Breathedge", "Lucky Tower Ultimate", "Prey", "Euro Truck Simulator 2", "Pathfinder: Kingmaker",
+                    "Empire of the Ants", "The Dark Pictures Anthology: The Devil in Me", "Tiny Bunny",
+                    "Vintage Story", "The Surfer", "Batman: The Enemy Within", "Wolfenstein II: The New Colossus",
+                    "No Man's Sky", "Cities: Skylines", "Valhall", "The Witcher 2: Assassins of Kings",
+                    "Amnesia: The Dark Descent", "Hollow Knight: Silksong", "Shadow of the Colossus",
+                    "Red Dead Redemption 2", "Mass Effect Legendary Edition", "Sekiro: Shadows Die Twice",
+                    "Journey", "The Elder Scrolls IV: Oblivion", "The Elder Scrolls III: Morrowind",
+                    "Outer Wilds", "The Elder Scrolls Online", "The Elder Scrolls V: Skyrim Special Edition",
+                    "Nier: Automata", "The Witcher: Enhanced Edition", "The Witcher 2: Assassins of Kings Enhanced Edition",
+                    "Ori and the Will of the Wisps", "The Witcher 3: Wild Hunt - Game of the Year Edition",
+                    "Control", "The Witcher 3: Wild Hunt - Blood and Wine", "The Witcher 3: Wild Hunt - Hearts of Stone",
+                    "Metro Exodus", "The Legend of Zelda: Breath of the Wild",
+                    "Dead Cells", "Subnautica", "The Elder Scrolls V: Skyrim"]
+
+jogos_offline = [jogo.strip().lower() for jogo in jogos_offline]
+
+# Ajuste na parte onde se atribui a categoria GameType
+def categorize_game(x: str) -> str:
+    # Verificar se o nome do jogo não é nulo e compará-lo com as listas fornecidas
+    if pd.isna(x):
+        return 'Non_Content_Available'
+    game_name = x.strip().lower()  # Remove espaços extras e converte para minúsculas
+    if game_name in jogos_offline:
+        return 'Offline'
+    elif game_name in non_Videojogos:
+        return 'Non-Videogame'
+    else:
+        return 'Online'
 
 def StudyAllCountries(current_dir: Path) -> None:
     countries = ["PTBR", "DE", "ENGB", "ES", "FR", "RU"]
@@ -37,59 +105,6 @@ def StudyAllCountries(current_dir: Path) -> None:
         f"[{Fore.BLUE}{{n_fmt}}/{total_countries}{Style.RESET_ALL}] "
         f"({Fore.YELLOW}Tempo restante: {{remaining}}{Style.RESET_ALL})"
     )
-
-    # Lista de categorias que não são videojogos
-    non_Videojogos = ['IRL', 'Just Chatting', 'Watch TV', 'Art', 'Music',
-                      'Science & Technology', 'Software and Game Development',
-                      'Co-working & Studying', 'Crypto', 'Politics',
-                      'Talk Shows & Podcasts', 'DJs', 'Special Events',
-                      'Sports', 'Food & Drink', 'Casino', 'CooKing',
-                      'Poker', 'Virtual Casino', 'Tabletop RPGs']
-
-    non_Videojogos = [Njogo.strip().lower() for Njogo in non_Videojogos]
-
-    jogos_offline = ["The Callisto Protocol", "Kingdom Two Crowns", "My Hotel", "Disco Elysium",
-                     "Divinity: Original Sin II", "Grand Theft Auto: San Andreas", "osu!",
-                     "The Binding of Isaac: Repentance", "God of War Ragnarök", "BUCKSHOT ROULETTE", "Atomic Heart",
-                     "Gothic II", "Grand Theft Auto III", "Silent Hill 2", "Ghostwire: Tokyo", "DREDGE",
-                     "VLADiK BRUTAL", "Northern Journey", "The Dark Pictures Anthology: Little Hope",
-                     "Marvel's Spider-Man", "Resident Evil 4", "Crossout", "Horizon Zero Dawn Remastered", "Outlast II",
-                     "The Last of Us Part I", "Neva", "Risk of Rain 2", "ELDEN RING", "Alan Wake II",
-                     "DARK SOULS II: Scholar of the First Sin", "DARK SOULS III", "Dark Souls: Remastered", "Diablo II",
-                     "Fallout 4", "Dungeon Crusher: Soul Hunters", "Castlevania: Dawn of Sorrow", "Artifact",
-                     "I Wanna Kill the Kamilia 3", "Torchlight: Infinite", "The Guild 3", "Sid Meier's Civilization VI",
-                     "Sons of the Forest", "The Sims 4", "X4: Foundations", "Hades II",
-                     "Prince of Persia: The Lost Crown", "Bloodborne", "Angry Birds VR: Isle of Pigs",
-                     "Heroes of Might and Magic V", "Internet Cafe Simulator 2", "Wolfenstein: The New Order",
-                     "Factorio", "DOOM Eternal", "Everlasting Summer", "God Hand", "Beyond: Two Souls", "Mafia III",
-                     "Zenless Zone Zero", "Stardew Valley", "SIFU", "Dead Space 3", "Mafia II", "Fallout 2",
-                     "SnowRunner", "Hollow Knight", "The Witcher 3: Wild Hunt", "Killer Instinct", "Little Misfortune",
-                     "Magicraft", "Magicraft", "Planetbase", "Microsoft Flight Simulator 2024", "Songs of Conquest",
-                     "Stalker 2", "Amnesia: Rebirth", "Napoleon: Total War", "Gran Saga", "Pokémon Emerald Version",
-                     "Football, Tactics & Glory", "Katamari Damacy REROLL", "Lethal Company",
-                     "Vampire: The Masquerade - Bloodlines", "Red Dead Redemption", "The Walking Dead",
-                     "Detroit: Become Human", "Until Dawn", "DiRT Rally 2.0", "Portal 2", "Rise of the Tomb Raider",
-                     "Half-Life: Alyx", "Cyberpunk 2077", "Forza Horizon 5", "South Park: The Fractured But Whole",
-                     "TSIOQUE", "Need for Speed: Most Wanted", "inFAMOUS: Second Son", "Marvel's Spider-Man Remastered",
-                     "Alone in the Dark", "Lobotomy Corporation", "Mortal Kombat 1", "Tropico 6", "Dark and Darker",
-                     "Gray Zone Warfare", "The Dark Pictures Anthology: Man of Medan", "Beat Saber", "Blasphemous",
-                     "Baldur's Gate 3", "Broken Arrow", "Yakuza 0", "Dishonored", "Hogwarts Legacy",
-                     "Grand Theft Auto IV", "Need for Speed: Underground 2", "Only Up!", "Dragon Age: Origins",
-                     "Breathedge", "Lucky Tower Ultimate", "Prey", "Euro Truck Simulator 2", "Pathfinder: Kingmaker",
-                     "Empire of the Ants", "The Dark Pictures Anthology: The Devil in Me", "Tiny Bunny",
-                     "Vintage Story", "The Surfer", "Batman: The Enemy Within", "Wolfenstein II: The New Colossus",
-                     "No Man's Sky", "Cities: Skylines", "Valhall", "The Witcher 2: Assassins of Kings",
-                     "Amnesia: The Dark Descent", "Hollow Knight: Silksong", "Shadow of the Colossus",
-                     "Red Dead Redemption 2", "Mass Effect Legendary Edition", "Sekiro: Shadows Die Twice",
-                     "Journey", "The Elder Scrolls IV: Oblivion", "The Elder Scrolls III: Morrowind",
-                     "Outer Wilds", "The Elder Scrolls Online", "The Elder Scrolls V: Skyrim Special Edition",
-                     "Nier: Automata", "The Witcher: Enhanced Edition", "The Witcher 2: Assassins of Kings Enhanced Edition",
-                     "Ori and the Will of the Wisps", "The Witcher 3: Wild Hunt - Game of the Year Edition",
-                     "Control", "The Witcher 3: Wild Hunt - Blood and Wine", "The Witcher 3: Wild Hunt - Hearts of Stone",
-                     "Metro Exodus", "The Legend of Zelda: Breath of the Wild",
-                     "Dead Cells", "Subnautica", "The Elder Scrolls V: Skyrim"]
-
-    jogos_offline = [jogo.strip().lower() for jogo in jogos_offline]
 
     # Iterar sobre cada país com barra de progresso personalizada
     for country in tqdm(countries,
@@ -177,19 +192,6 @@ def StudyAllCountries(current_dir: Path) -> None:
         # Eficiência Global da Rede
         global_efficiency = nx.global_efficiency(G)
 
-        # Ajuste na parte onde se atribui a categoria GameType
-        def categorize_game(x: str) -> str:
-            # Verificar se o nome do jogo não é nulo e compará-lo com as listas fornecidas
-            if pd.isna(x):
-                return np.nan
-            game_name = x.strip().lower()  # Remove espaços extras e converte para minúsculas
-            if game_name in jogos_offline:
-                return 'Offline'
-            elif game_name in non_Videojogos:
-                return 'Non-Videogame'
-            else:
-                return 'Online'
-
         # Aplicar a função de categorização aos jogos
         nodes_df['GameType'] = nodes_df['game_name'].apply(categorize_game)
 
@@ -220,6 +222,7 @@ def StudyAllCountries(current_dir: Path) -> None:
         # Obter a quantidade de nós e arestas no k-core
         num_nodos_k_core = k_core.number_of_nodes()  # Número de nós
         num_arestas_k_core = k_core.number_of_edges()  # Número de arestas
+        k_max = max(dict(nx.core_number(G)).values())
 
         # Armazenar os resultados numa lista
         results.append({
@@ -249,6 +252,7 @@ def StudyAllCountries(current_dir: Path) -> None:
             'Heterogeneity': heterogeneity,
             'Giant Component Nodes': num_nodes_giant,
             'Giant Component Edges': num_edges_giant,
+            'K-Core Max': k_max,
             'Number of Nodes in K-Core': num_nodos_k_core,
             'Number of Edges in K-Core': num_arestas_k_core,
             'On-Videogame Channels': ON_videogames_count,
